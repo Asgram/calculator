@@ -1,0 +1,103 @@
+* {
+    border: 1px solid red;
+
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    box-sizing: border-box;
+}
+
+button {
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 5px;
+}
+
+body {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#calculator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgb(189, 189, 189);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    width: 500px;
+
+    margin: 5px;
+}
+
+#solution {
+    flex: 1.5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+
+}
+
+#numeric-solution {
+    flex: 1;
+    height: 80%;
+    margin: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 0.5rem;
+}
+
+.key-container {
+    flex: 4;
+    display: flex;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.column>* {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+}
+
+.operator {
+    background-color: rgb(212, 212, 212);
+}
+
+.key {
+    background-color: rgb(241, 241, 241);
+}
+
+#equal{
+    background-color: rgb(47, 47, 224);
+    color: white;
+}
+
+#clear{
+    background-color: rgb(255, 68, 0);
+    color: white;
+}
