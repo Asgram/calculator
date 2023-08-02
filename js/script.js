@@ -17,15 +17,15 @@ function divide(a, b) {
 function operate(symbol, a, b) {
     switch (symbol) {
         case '+':
-            return Math.min(Math.max(add(a, b), 1e-14), 999999999);
+            return Math.min(Math.max(parseFloat(add(a, b).toFixed(3)), -9999999999), 9999999999);
         case '-':
-            return Math.max(Math.ceil(sub(a, b) * 1e5) / 1e5, 1e-14);
-        case 'x':
-            return Math.min(Math.ceil(mult(a, b) * 1e5) / 1e5, 999999999);
+            return Math.min(Math.max(parseFloat(sub(a, b).toFixed(3)), -9999999999), 9999999999);
+        case '*':
+            return Math.min(Math.max(parseFloat(mult(a, b).toFixed(3)), -9999999999), 9999999999);
         case '/':
             let quotient = divide(a, b);
             return typeof (quotient) === 'string' ? quotient
-                : Math.max(Math.ceil(quotient * 1e5) / 1e5, 1e-14);
+                : Math.min(Math.max(parseFloat(quotient.toFixed(3)), -9999999999), 9999999999);
         default:
             return;
     }
@@ -49,14 +49,15 @@ window.onload = () => {
     let isFirstTime = true;
     let adder = false;
     let disabledButtons = false;
-    let symbol = false;
-    //let isFloat = false;
 
     keys.forEach(element => {
         element.onmousedown = () => {
-            isFirstTime ? solution.textContent = chooseKey(element.getAttribute('id'))
-                : solution.textContent += chooseKey(element.getAttribute('id'));
-                isFirstTime = false
+            if (isFirstTime) {
+                solution.textContent = element.getAttribute('id');
+            } else if (solution.textContent.length < 14) {
+                solution.textContent += element.getAttribute('id');
+            }
+            isFirstTime = false
             if (disabledButtons) {
                 operators.forEach(btn => {
                     disabledButtons = false;
@@ -86,7 +87,6 @@ window.onload = () => {
                 adder = true;
             } else adder = false;
             isFirstTime = true;
-            console.log(num1 + " " + operator + " " + num2);
         }
     });
 
@@ -107,10 +107,10 @@ window.onload = () => {
 
     backspace.onclick = () => {
         solution.textContent = solution.textContent.slice(0, -1);
-        if (solution.textContent === ""){
+        if (solution.textContent === "") {
             solution.textContent = "0";
             isFirstTime = true;
-        } 
+        }
         if (disabledButtons) {
             isFirstTime = true;
             adder = false;
@@ -128,22 +128,21 @@ window.onload = () => {
     percentage.onclick = () => {
         solution.textContent = operate('/', +solution.textContent, 100);
         adder = false;
-        console.log(num1 + " " + operator + " " + num2);
-        console.log(isFirstTime);
         num1 = solution.textContent;
         num2 = "";
         operator = "";
     }
 
     point.onmousedown = () => {
-        if(Number.isInteger(Number(solution.textContent))) {
+        if (Number.isInteger(Number(solution.textContent))) {
             solution.textContent += ".";
+            isFirstTime = false;
         }
     }
 
     numSymbol.onmousedown = () => {
-        let first = solution.textContent.slice(0,1);
-        if(first === "+"){
+        let first = solution.textContent.slice(0, 1);
+        if (first === "+") {
             first = solution.textContent.slice(1);
             solution.textContent = "-" + first;
         } else if (first === "-") {
@@ -152,11 +151,105 @@ window.onload = () => {
         } else solution.textContent = "-" + solution.textContent;
         adder ? num2 = solution.textContent : num1 = solution.textContent;
     }
-}
 
-function chooseKey(idName) {
-    switch (idName) {
-        case 'number-symbol': return 'LATER';
-        default: return idName;
-    }
+    window.addEventListener("keydown", (e) => {
+        if (Number.isInteger(Number(e.key))) {
+            if (isFirstTime) {
+                solution.textContent = e.key
+            } else if (solution.textContent.length < 14) {
+                solution.textContent += e.key;
+            }
+
+            isFirstTime = false
+            if (disabledButtons) {
+                operators.forEach(btn => {
+                    disabledButtons = false;
+                    btn.disabled = false;
+                })
+            }
+        } else if (e.key === '+' ||
+            e.key === '-' || e.key === '*' ||
+            e.key === '/' || e.key === "Enter") {
+            if (!isFirstTime && !adder) {
+                num1 = solution.textContent;
+            } else if (!isFirstTime) {
+                num2 = solution.textContent;
+                solution.textContent = operate(operator, +num1, +num2);
+                num1 = solution.textContent;
+            }
+            if (num1 === "UNDEFINED") {
+                operators.forEach(btn => {
+                    disabledButtons = true;
+                    btn.disabled = true;
+                })
+            }
+            if (e.key !== 'Enter') {
+                operator = e.key;
+                adder = true;
+            } else adder = false;
+            isFirstTime = true;
+        } else {
+            switch (e.key) {
+                case "%":
+                    solution.textContent = operate('/', +solution.textContent, 100);
+                    adder = false;
+                    num1 = solution.textContent;
+                    num2 = "";
+                    operator = "";
+                    break;
+                case "Escape":
+                    isFirstTime = true;
+                    adder = false;
+                    solution.textContent = '0';
+                    num1 = "";
+                    num2 = "";
+                    operator = "";
+                    if (disabledButtons) {
+                        operators.forEach(btn => {
+                            disabledButtons = false;
+                            btn.disabled = false;
+                        })
+                    }
+                    break;
+                case ".":
+                    if (Number.isInteger(Number(solution.textContent))) {
+                        solution.textContent += ".";
+                        isFirstTime = false;
+                    }
+                    break;
+                case "Backspace":
+                    solution.textContent = solution.textContent.slice(0, -1);
+                    if (solution.textContent === "") {
+                        solution.textContent = "0";
+                        isFirstTime = true;
+                    }
+                    if (disabledButtons) {
+                        isFirstTime = true;
+                        adder = false;
+                        solution.textContent = '0';
+                        num1 = "";
+                        num2 = "";
+                        operator = "";
+                        operators.forEach(btn => {
+                            disabledButtons = false;
+                            btn.disabled = false;
+                        })
+                    }
+                    break;
+                case "_":
+                    let first = solution.textContent.slice(0, 1);
+                    if (first === "+") {
+                        first = solution.textContent.slice(1);
+                        solution.textContent = "-" + first;
+                    } else if (first === "-") {
+                        first = solution.textContent.slice(1);
+                        solution.textContent = "+" + first;
+                    } else solution.textContent = "-" + solution.textContent;
+                    adder ? num2 = solution.textContent : num1 = solution.textContent;
+                    break;
+                default: break;
+            }
+        }
+    });
+
 }
